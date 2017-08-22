@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 # CUSTOMIZABLE: Collect/Prepare data
 datapoint_size = 1000
@@ -14,6 +15,9 @@ log_file = "/tmp/feature_2_batch_1000"
 
 x_1 = []
 x_2 = []
+
+costlist = []
+iteration = []
 
 for k in range(datapoint_size):
     x_1.append(k%10)
@@ -61,9 +65,9 @@ sess = tf.Session()
 
 # Merge all the summaries and write them out to /tmp/mnist_logs
 merged = tf.summary.merge_all()
-writer = tf.summary.FileWriter(log_file, sess.graph_def)
+writer = tf.summary.FileWriter(log_file, sess.graph)
 
-init = tf.initialize_all_variables()
+init = tf.global_variables_initializer()
 sess.run(init)
 
 for i in range(steps):
@@ -87,10 +91,21 @@ for i in range(steps):
     feed = { x: xs, y_: ys }
     sess.run(train_step, feed_dict=feed)
 
+  costlist.append(float(sess.run(cost, feed_dict=all_feed)))
+  iteration.append(i)
+
   if(i == (steps-1)):
     print("After %d iteration:" % i)
     print("W: %s" % sess.run(W))
     print("b: %f" % sess.run(b))
     print("cost: %f" % sess.run(cost, feed_dict=all_feed))
+    print(len(costlist))
+    print(len(iteration))
 
+a = np.array(iteration)
+b = np.array(costlist)
+
+plt.plot(a, b, 'ro', label='Original data')
+plt.legend()
+plt.show()
 # NOTE: W should be close to actual_W1, actual_W2, and b should be close to actual_b
