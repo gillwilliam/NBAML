@@ -5,10 +5,12 @@ import matplotlib.pyplot as plt
 import csv
 import sys
 
+#for csv
 x_1 = []
 x_2 = []
 y_real = []
 
+#for graphing
 costlist = []
 iteration = []
 
@@ -22,15 +24,11 @@ try:
 finally:
     f.close()
 
-# CUSTOMIZABLE: Collect/Prepare data
+#data constants
 datapoint_size = len(x_1)
 batch_size = len(x_1)
 steps = 1000
-actual_W1 = 2
-actual_W2 = 5
-actual_b = 7
 learn_rate = 0.001
-log_file = "/tmp/feature_2_batch_1000"
 
 
 
@@ -43,10 +41,6 @@ with tf.name_scope("Wx_b") as scope:
   product = tf.matmul(x,W)
   y = product + b
 
-# Add summary ops to collect data
-W_hist = tf.summary.histogram("weights", W)
-b_hist = tf.summary.histogram("biases", b)
-y_hist = tf.summary.histogram("y", y)
 
 y_ = tf.placeholder(tf.float32, [None, 1])
 
@@ -62,11 +56,7 @@ with tf.name_scope("train") as scope:
 all_xs = []
 all_ys = []
 for i in range(datapoint_size):
-  # Create fake data for y = 2.x_1 + 5.x_2 + 7
-  #x_1 = i%10
-  #x_2 = np.random.randint(datapoint_size/2)%10
   y = y_real[i]
-  # Create fake data for y = W.x + b where W = [2, 5], b = 7
   all_xs.append([x_1[i], x_2[i]])
   all_ys.append(y)
 
@@ -77,7 +67,6 @@ sess = tf.Session()
 
 # Merge all the summaries and write them out to /tmp/mnist_logs
 merged = tf.summary.merge_all()
-writer = tf.summary.FileWriter(log_file, sess.graph)
 
 init = tf.global_variables_initializer()
 sess.run(init)
@@ -98,7 +87,7 @@ for i in range(steps):
   # Record summary data, and the accuracy every 10 steps
   if i % 10 == 0:
     result = sess.run(merged, feed_dict=all_feed)
-    writer.add_summary(result, i)
+    #writer.add_summary(result, i)
   else:
     feed = { x: xs, y_: ys }
     sess.run(train_step, feed_dict=feed)
