@@ -72,25 +72,8 @@ init = tf.global_variables_initializer()
 sess.run(init)
 
 for i in range(steps):
-  if datapoint_size == batch_size:
-    batch_start_idx = 0
-  elif datapoint_size < batch_size:
-    raise ValueError("datapoint_size: %d, must be greater than batch_size: %d" % (datapoint_size, batch_size))
-  else:
-    batch_start_idx = (i * batch_size) % (datapoint_size - batch_size)
-  batch_end_idx = batch_start_idx + batch_size
-  batch_xs = all_xs[batch_start_idx:batch_end_idx]
-  batch_ys = all_ys[batch_start_idx:batch_end_idx]
-  xs = np.array(batch_xs)
-  ys = np.array(batch_ys)
   all_feed = { x: all_xs, y_: all_ys }
-  # Record summary data, and the accuracy every 10 steps
-  if i % 10 == 0:
-    result = sess.run(merged, feed_dict=all_feed)
-    #writer.add_summary(result, i)
-  else:
-    feed = { x: xs, y_: ys }
-    sess.run(train_step, feed_dict=feed)
+  sess.run(train_step, feed_dict=all_feed)
 
   costlist.append(float(sess.run(cost, feed_dict=all_feed)))
   iteration.append(i)
