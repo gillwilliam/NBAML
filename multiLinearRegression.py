@@ -2,10 +2,30 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
+import csv
+import sys
+
+x_1 = []
+x_2 = []
+y_real = []
+
+costlist = []
+iteration = []
+
+f = open('data.csv', 'rt')
+try:
+    reader = csv.reader(f)
+    for row in reader:
+        x_1.append(int(row[0]))
+        x_2.append(int(row[1]))
+        y_real.append(int(row[2]))
+finally:
+    f.close()
+
 # CUSTOMIZABLE: Collect/Prepare data
-datapoint_size = 1000
-batch_size = 1000
-steps = 10000
+datapoint_size = len(x_1)
+batch_size = len(x_1)
+steps = 1000
 actual_W1 = 2
 actual_W2 = 5
 actual_b = 7
@@ -13,15 +33,7 @@ learn_rate = 0.001
 log_file = "/tmp/feature_2_batch_1000"
 
 
-x_1 = []
-x_2 = []
 
-costlist = []
-iteration = []
-
-for k in range(datapoint_size):
-    x_1.append(k%10)
-    x_2.append(np.random.randint(datapoint_size/2)%10)
 
 # Model linear regression y = Wx + b
 x = tf.placeholder(tf.float32, [None, 2], name="x")
@@ -53,7 +65,7 @@ for i in range(datapoint_size):
   # Create fake data for y = 2.x_1 + 5.x_2 + 7
   #x_1 = i%10
   #x_2 = np.random.randint(datapoint_size/2)%10
-  y = actual_W1 * x_1[i] + actual_W2 * x_2[i] + actual_b
+  y = y_real[i]
   # Create fake data for y = W.x + b where W = [2, 5], b = 7
   all_xs.append([x_1[i], x_2[i]])
   all_ys.append(y)
