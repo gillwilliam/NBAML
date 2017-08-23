@@ -8,44 +8,51 @@ import sys
 import players
 
 #for csv
-x_1 = []
-x_2 = []
+
+x_features = []
+features = ['PTS', 'AST', 'REB', 'STL', 'BLK', 'TOV']
+
+#For feature scaling
+averages = [102.7/10, 22.3/10, 43.8/10, 7.8/10, 5/10, 14.4/10]
+
 y_real = []
 
 listofplayers = players.Players("2016")
 listofplayers.loadData()
 
+print(len(listofplayers.players))
+
+
+
 for playerData in listofplayers.players:
-    x_1.append(playerData['PTS'])
-    x_2.append(playerData['AST'])
-    y_real.append(playerData["Salary"])
+    temp = []
+    ind = 0
+    for feature in features:
+        temp.append(playerData[feature]/averages[ind])
+        ind+=1
+    x_features.append(temp)
+    y_real.append(playerData["Salary"]/6)
+
 
 #for graphing
 costlist = []
 iteration = []
 
-f = open('data.csv', 'rt')
-try:
-    reader = csv.reader(f)
-    for row in reader:
-        x_1.append(int(row[0]))
-        x_2.append(int(row[1]))
-        y_real.append(int(row[2]))
-finally:
-    f.close()
+print(x_features[0])
+print(y_real[0])
 
 #data constants
-datapoint_size = len(x_1)
-batch_size = len(x_1)
-steps = 100000
-learn_rate = 0.00001
+datapoint_size = len(x_features)
+batch_size = len(x_features)
+steps = 1000
+learn_rate = 0.001
 
 
 
 
 # Model linear regression y = Wx + b
-x = tf.placeholder(tf.float32, [None, 2], name="x")
-W = tf.Variable(tf.zeros([2,1]), name="W")
+x = tf.placeholder(tf.float32, [None, len(features)], name="x")
+W = tf.Variable(tf.zeros([len(features),1]), name="W")
 b = tf.Variable(tf.zeros([1]), name="b")
 with tf.name_scope("Wx_b") as scope:
   product = tf.matmul(x,W)
@@ -65,10 +72,9 @@ with tf.name_scope("train") as scope:
 
 all_xs = []
 all_ys = []
-for i in range(datapoint_size):
-  y = y_real[i]
-  all_xs.append([x_1[i], x_2[i]])
-  all_ys.append(y)
+
+all_ys = y_real
+all_xs = x_features
 
 all_xs = np.array(all_xs)
 all_ys = np.transpose([all_ys])
@@ -81,10 +87,10 @@ merged = tf.summary.merge_all()
 init = tf.global_variables_initializer()
 sess.run(init)
 
+
 for i in range(steps):
   all_feed = { x: all_xs, y_: all_ys }
   sess.run(train_step, feed_dict=all_feed)
-
   costlist.append(float(sess.run(cost, feed_dict=all_feed)))
   iteration.append(i)
 
@@ -93,12 +99,10 @@ for i in range(steps):
     print("W: %s" % sess.run(W))
     print("b: %f" % sess.run(b))
     print("cost: %f" % sess.run(cost, feed_dict=all_feed))
-    print(len(costlist))
-    print(len(iteration))
 
 #pick reasonable number based on number of iterations
-a = iteration[6000: ]
-b = costlist[6000: ]
+a = iteration
+b = costlist
 a = np.array(a)
 b = np.array(b)
 
