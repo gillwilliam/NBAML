@@ -5,10 +5,20 @@ import matplotlib.pyplot as plt
 import csv
 import sys
 
+import players
+
 #for csv
 x_1 = []
 x_2 = []
 y_real = []
+
+listofplayers = players.Players("2016")
+listofplayers.loadData()
+
+for playerData in listofplayers.players:
+    x_1.append(playerData['PTS'])
+    x_2.append(playerData['AST'])
+    y_real.append(playerData["Salary"])
 
 #for graphing
 costlist = []
@@ -27,8 +37,8 @@ finally:
 #data constants
 datapoint_size = len(x_1)
 batch_size = len(x_1)
-steps = 1000
-learn_rate = 0.001
+steps = 100000
+learn_rate = 0.00001
 
 
 
@@ -86,10 +96,13 @@ for i in range(steps):
     print(len(costlist))
     print(len(iteration))
 
-a = np.array(iteration)
-b = np.array(costlist)
+#pick reasonable number based on number of iterations
+a = iteration[6000: ]
+b = costlist[6000: ]
+a = np.array(a)
+b = np.array(b)
 
-plt.plot(a, b, 'ro', label='Original data')
+plt.plot(a, b, 'ro', label='Cost Curve')
 plt.legend()
 plt.show()
 # NOTE: W should be close to actual_W1, actual_W2, and b should be close to actual_b
